@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: qau-chatbot
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "streamlit run qau_chatbot_app.py --server.port=$PORT"
+    autoDeploy: true
