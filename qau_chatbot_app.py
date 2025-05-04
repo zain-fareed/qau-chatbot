@@ -2,47 +2,44 @@ import streamlit as st
 import pandas as pd
 from difflib import get_close_matches
 
-# Load CSV file
+# Load CSV directly from GitHub repo (no local path)
 @st.cache_data
 def load_data():
-    return pd.read_csv(r"C:\Users\COMPUTER WORLD\OneDrive\Desktop\qau_programs_all.csv.txt.csv")
+    return pd.read_csv("qau_programs_all.csv.csv")
 
 qa_data = load_data()
 
-# Chatbot logic
-def smart_chatbot(user_question, qa_data):
+# Simple chatbot logic
+def smart_chatbot(user_input, qa_data):
     questions = qa_data['Question'].tolist()
-    match = get_close_matches(user_question, questions, n=1, cutoff=0.5)
-
+    match = get_close_matches(user_input, questions, n=1, cutoff=0.6)
     if match:
-        answer = qa_data[qa_data['Question'] == match[0]]['Answer'].values[0]
-        return f"*Q:* {match[0]}\n\n*A:* {answer}"
+        answer = qa_data.loc[qa_data['Question'] == match[0], 'Answer'].values[0]
+        return f"Q: {match[0]}\n\nA: {answer}"
     else:
-        return "Sorry, I couldn't find a relevant answer."
+        return "Sorry, I couldn't find an answer to that."
 
 # Streamlit UI
 st.title("QAU Chatbot - Ask About Quaid-e-Azam University")
 st.markdown("Ask about programs, fees, eligibility, etc.")
 
-# Example buttons
-st.subheader("Example Questions:")
-col1, col2 = st.columns(2)
+# Example questions
+st.markdown("### Example Questions:")
+cols = st.columns(2)
+examples = [
+    "What BS programs are offered?",
+    "What is the BS fee?",
+    "Does QAU offer BS in Computer Science?",
+    "Eligibility for BS?"
+]
 
-with col1:
-    if st.button("What BS programs are offered?"):
-        st.session_state['example'] = "What undergraduate programs does QAU offer in Natural Sciences?"
-    if st.button("Does QAU offer CS?"):
-        st.session_state['example'] = "Does QAU offer BS in Computer Science?"
+for i, example in enumerate(examples):
+    if cols[i % 2].button(example):
+        st.session_state['example_question'] = example
 
-with col2:
-    if st.button("What is the BS fee?"):
-        st.session_state['example'] = "What is the fee structure for BS programs at QAU?"
-    if st.button("Eligibility for BS?"):
-        st.session_state['example'] = "What is the eligibility criterion for admission to BS programs at QAU?"
-
-# Display selected question
-user_input = st.text_input("Your question:", value=st.session_state.get('example', ''))
-
+# Input
+user_input = st.text_input("Your question:", value=st.session_state.get('example_question', ''))
 if user_input:
     result = smart_chatbot(user_input, qa_data)
     st.markdown(result)
+
