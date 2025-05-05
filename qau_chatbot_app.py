@@ -42,4 +42,15 @@ user_input = st.text_input("Your question:", value=st.session_state.get('example
 if user_input:
     result = smart_chatbot(user_input, qa_data)
     st.markdown(result)
+from chatbot_core import load_data, answer_with_llm, build_context_from_csv
+import streamlit as st
 
+df = load_data("qau_programs_all.csv")
+context = build_context_from_csv(df)
+
+st.title("QAU Chatbot with AI Brain")
+user_input = st.text_input("Ask your question:")
+
+if user_input:
+    answer = answer_with_llm(user_input, context)
+    st.markdown(f"*Answer:* {answer}")
